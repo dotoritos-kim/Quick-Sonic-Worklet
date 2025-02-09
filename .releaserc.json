@@ -6,6 +6,8 @@
 			"prerelease": true
 		}
 	],
+	"repositoryUrl": "https://github.com/dotoritos-kim/Quick-Sonic-Worklet",
+
 	"plugins": [
 		[
 			"@semantic-release/commit-analyzer",
