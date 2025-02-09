@@ -1,0 +1,29 @@
+{
+	"compilerOptions": {
+		"target": "esnext",
+		"outDir": "./dist/",
+		"lib": ["dom", "dom.iterable", "esnext", "WebWorker"],
+		"noImplicitAny": true,
+		"baseUrl": "./src",
+		"allowJs": true,
+		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"strict": true,
+		"forceConsistentCasingInFileNames": true,
+		"noFallthroughCasesInSwitch": true,
+		"module": "esnext",
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"noEmit": true,
+		"sourceMap": true,
+		"typeRoots": ["./node_modules/@types", "./src", "node"],
+		"composite": true,
+		"declaration": true,
+		"declarationMap": true,
+		"strictNullChecks": true
+	},
+	"include": ["src/**/*"],
+	"exclude": ["node_modules", "dist"]
+}

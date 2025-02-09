@@ -1,0 +1,75 @@
+{
+	"name": "quick-sonic-worklet",
+	"version": "1.0.0",
+	"description": "",
+	"main": "dist/index.js",
+	"module": "dist/index.js",
+	"types": "dist/types.js",
+	"scripts": {
+		"build": "rollup -c",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"type": "module",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/dotoritos-kim/Quick-Sonic-Worklet.git"
+	},
+	"keywords": [
+		"worklet",
+		"audio"
+	],
+	"author": "",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/dotoritos-kim/Quick-Sonic-Worklet/issues"
+	},
+	"homepage": "https://github.com/dotoritos-kim/Quick-Sonic-Worklet#readme",
+	"devDependencies": {
+		"@rollup/plugin-commonjs": "^28.0.2",
+		"@rollup/plugin-json": "^6.1.0",
+		"@rollup/plugin-node-resolve": "^16.0.0",
+		"@semantic-release/changelog": "^6.0.3",
+		"@semantic-release/commit-analyzer": "^13.0.1",
+		"@semantic-release/git": "^10.0.1",
+		"@semantic-release/github": "^11.0.1",
+		"@semantic-release/release-notes-generator": "^14.0.3",
+		"@swc/core": "^1.10.15",
+		"@types/audioworklet": "^0.0.70",
+		"conventional-changelog-conventionalcommits": "^8.0.0",
+		"rollup": "^4.34.6",
+		"rollup-plugin-swc3": "^0.12.1",
+		"rollup-plugin-typescript2": "^0.36.0",
+		"rollup-plugin-web-worker-loader": "^1.7.0",
+		"semantic-release": "^24.2.1",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.7.3"
+	},
+	"dependencies": {
+		"core-js": "^3.40.0"
+	},
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"require": "./dist/index.js"
+		},
+		"./worker": {
+			"import": "./dist/AudioLoader.worker.js",
+			"require": "./dist/AudioLoader.worker.js"
+		},
+		"./worklet": {
+			"import": "./dist/AudioProcessor.worklet.js",
+			"require": "./dist/AudioProcessor.worklet.js"
+		},
+		"./preloader": {
+			"import": "./dist/AudioPreloader.js",
+			"require": "./dist/AudioPreloader.js"
+		},
+		"./types": {
+			"import": "./dist/types.js",
+			"require": "./dist/types.js"
+		}
+	}
+}
