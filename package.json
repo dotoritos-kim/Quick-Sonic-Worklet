@@ -52,6 +52,7 @@
 	"files": [
 		"dist"
 	],
+	"private": false,
 	"exports": {
 		".": {
 			"import": "./dist/index.js",
