@@ -1,10 +1,3 @@
-/**
- * AudioPreloader.ts
- *
- *  - Worker = 오디오 파일 다운로드
- *  - 메인 스레드 = decodeAudioData & AudioWorklet 재생
- *  - 멀티 트랙, 마스터 볼륨 & 로우패스 필터 적용
- */
 import {
 	AudioProcessorPostMessage,
 	DriveSettings,
@@ -14,6 +7,32 @@ import {
 	ModulationSettings,
 	VisualizerBand,
 } from "./types";
+
+/** Worker에서 전달되는 메시지 payload 타입들 */
+interface ProgressPayload {
+	key: string;
+	url: string;
+	loadedCount: number;
+	total: number;
+}
+
+interface LoadedPayload {
+	key: string;
+	url: string;
+	arrayBuffer: ArrayBuffer;
+}
+
+interface DonePayload {
+	total: number;
+}
+
+interface ErrorPayload {
+	key: string;
+	url: string;
+	message: string;
+}
+
+export type WorkerMessagePayload = ProgressPayload | LoadedPayload | DonePayload | ErrorPayload;
 
 export interface FileMap {
 	[key: string]: string;
@@ -40,7 +59,7 @@ export class AudioPreloader {
 		private fileMap: FileMap,
 		workerUrl: string,
 		private fetchOptions?: RequestInit,
-		private onWorkerMessage?: (type: string, payload: any) => void
+		private onWorkerMessage?: (type: string, payload: WorkerMessagePayload) => void
 	) {
 		this.audioContext = new AudioContext();
 		this.worker = new Worker(workerUrl);

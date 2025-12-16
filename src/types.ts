@@ -101,8 +101,10 @@ export interface VisualizerBand {
     startFrequency: number;
     endFrequency: number;
 }
-export function isVisualizerBand(obj: any): obj is VisualizerBand {
-    return obj !== null && typeof obj === 'object' && typeof obj.startFrequency === 'number' && typeof obj.endFrequency === 'number';
+export function isVisualizerBand(obj: unknown): obj is VisualizerBand {
+    if (obj === null || typeof obj !== 'object') return false;
+    const record = obj as Record<string, unknown>;
+    return typeof record.startFrequency === 'number' && typeof record.endFrequency === 'number';
 }
 // AudioProcessor로 전달되는 메시지 타입
 export interface AudioProcessorPostMessage {
