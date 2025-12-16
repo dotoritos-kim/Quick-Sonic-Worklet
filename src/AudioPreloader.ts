@@ -233,6 +233,15 @@ export class AudioPreloader {
 	}
 
 	/**
+	 * 재생 중인 트랙의 출력 레이턴시(지연)를 샘플 단위로 조절합니다.
+	 * @param key - 트랙을 식별하는 고유 키
+	 * @param samples - 지연 샘플 수 (0 ~ sampleRate, 최대 1초)
+	 */
+	public adjustLatencySamples(key: string, samples: number) {
+		this.postTypedMessage({ type: "adjustLatencySamples", key, data: samples });
+	}
+
+	/**
 	 * 비주얼라이저 대역(VisualizerBand[])을 설정합니다.
 	 * @param key - 트랙과 관계없이 전역적으로 설정 (빈 문자열을 전달해도 됨)
 	 * @param bands - VisualizerBand 객체 배열 (각 객체는 startFrequency와 endFrequency 속성을 가짐)
