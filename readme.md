@@ -1,19 +1,18 @@
 # Quick-Sonic-Worklet Library
 
-Quick-Sonic-Worklet is a TypeScript library designed to streamline the downloading, decoding, and playback of audio files using Web Workers and AudioWorklet. It supports multi-track playback, master volume control, and audio effects like low-pass filters.
+Quick-Sonic-Worklet is a TypeScript library designed to streamline the downloading, decoding, and playback of audio files using Web Workers and AudioWorklet. It supports multi-track playback, master volume control, and professional-grade audio effects.
 
 ## Features
 
 -   **Worker-based Audio Downloading**: Offload audio file downloads to a Web Worker for efficient background processing.
 -   **Main Thread Decoding & Playback**: Use `decodeAudioData` and `AudioWorklet` for high-performance audio decoding and playback.
 -   **Multi-Track Support**: Play multiple audio tracks simultaneously with individual controls.
--   **Audio Effects**: Apply effects such as EQ, modulation, delay, reverb, drive (distortion/overdrive), and dynamics (compression).
+-   **Professional Audio Effects**: EQ, modulation (chorus/flanger/vibrato), Schroeder reverb, delay, echo, drive, and dynamics.
+-   **Real-time Parameter Control**: All effects can be adjusted in real-time during playback.
 -   **Visualizer Integration**: Real-time visualizer data handling for audio visualization.
 -   **Master Volume & Low-Pass Filter**: Control overall volume and apply global audio filters.
 
 ## Installation
-
-Clone the repository or install via npm (if published).
 
 ```bash
 npm install quick-sonic-worklet
@@ -25,142 +24,192 @@ npm install quick-sonic-worklet
 
 ```typescript
 import { AudioPreloader } from "./AudioPreloader";
+import { AudioLoadWorker } from "./AudioLoader.worker";
 ```
 
 ### Initialization
 
 ```typescript
-import { AudioLoadWorker } from "./AudioLoader.worker";
-
 const fileMap = {
 	track1: "audio/track1.mp3",
 	track2: "audio/track2.mp3",
 };
-const Callback: ((type: string, payload: any) => void) | undefined;
 
 const preloader = new AudioPreloader(
-	removeFileName(options.baseUrl), // This is the top address host such as https, http, etc. example: "https://localhost/"
-	options.fileMap, // FileName list
-	AudioLoadWorker,
-	Callback
+	"https://example.com/",
+	fileMap,
+	AudioLoadWorker
 );
 ```
 
 ### Loading and Decoding Audio
 
 ```typescript
-// Load audio files via Worker
 await preloader.loadAll();
-
-// Decode audio data to AudioBuffers
 await preloader.decodeAll();
-```
-
-### Initializing AudioWorklet
-
-```typescript
-await this._audioPreloader.initAudioWorklet(""); // optional
+await preloader.initAudioWorklet(workletUrl);
 ```
 
 ### Playing Audio
 
 ```typescript
-// Play track1 with loop and 1.5x speed
-preloader.playAudio("track1", true, 1.5);
-
-// Adjust volume of track1
+preloader.playAudio("track1", true, 1.5);  // loop, 1.5x speed
 preloader.adjustVolume("track1", 0.8);
-
-// Stop track1
 preloader.stopAudio("track1");
 ```
 
-### Applying Effects
+## Audio Effects
+
+### EQ (Equalizer)
 
 ```typescript
-// Apply EQ settings
 preloader.adjustEQ("track1", [
-	{ frequency: 60, gain: 5 },
-	{ frequency: 1000, gain: -3 },
+	{ frequency: 60, gain: 5 },      // Bass boost (+5dB)
+	{ frequency: 1000, gain: -3 },   // Mid cut (-3dB)
+	{ frequency: 8000, gain: 2 },    // Treble boost (+2dB)
 ]);
-
-// Apply modulation
-preloader.adjustModulation("track1", { type: "chorus", depth: 0.7, rate: 1.2 });
-
-// Apply reverb effect
-preloader.adjustEffects("track1", { reverb: 0.5 });
 ```
 
-### Visualizer Data Handling
+### Modulation Effects
+
+| Type | Description |
+|------|-------------|
+| `chorus` | Rich, layered sound with delayed signal |
+| `flanger` | Jet-like sweeping effect |
+| `vibrato` | Pitch modulation |
+| `tremolo` | Amplitude modulation |
+| `ring` | Ring modulation |
+| `square` / `triangle` / `sawtooth` | Waveform-based modulation |
+
+```typescript
+preloader.adjustModulation("track1", {
+	type: "chorus",   // Modulation type
+	depth: 0.5,       // 0.0 ~ 1.0
+	rate: 2.0         // Hz
+});
+```
+
+### Reverb (Schroeder Reverb)
+
+#### Using Presets
+
+| Preset | Decay | Diffusion | Description |
+|--------|-------|-----------|-------------|
+| `small` | 0.70 | 0.40 | Small room |
+| `medium` | 0.80 | 0.50 | Medium room |
+| `large` | 0.85 | 0.55 | Large room |
+| `hall` | 0.90 | 0.60 | Concert hall |
+| `plate` | 0.88 | 0.70 | Plate reverb |
+| `cathedral` | 0.95 | 0.65 | Cathedral |
+
+```typescript
+preloader.adjustEffects("track1", {
+	reverb: 0.5,        // Wet/dry mix (0~1)
+	roomSize: "hall"    // Preset
+});
+```
+
+#### Custom Parameters
+
+```typescript
+preloader.adjustEffects("track1", {
+	reverb: 0.5,
+	reverbDecay: 0.9,      // Decay time (0~1)
+	reverbDiffusion: 0.6   // Diffusion (0~1)
+});
+```
+
+### Delay & Echo
+
+```typescript
+preloader.adjustEffects("track1", {
+	delay: 300,   // Delay time in ms (0~2000)
+	echo: 200     // Echo time in ms (0~1000, multi-tap)
+});
+```
+
+### Drive Effects
+
+```typescript
+preloader.adjustDrive("track1", {
+	distortion: 0.5,   // Hard clipping (0~1)
+	overdrive: 0.3,    // Soft clipping (0~1)
+	fuzz: 0.7          // Asymmetric clipping + harmonics (0~1)
+});
+```
+
+### Dynamics (Compressor)
+
+```typescript
+preloader.adjustDynamics("track1", {
+	threshold: -24,   // dB (-60 ~ 0)
+	ratio: 4          // Compression ratio (1 ~ 20)
+});
+```
+
+### Latency Control
+
+```typescript
+preloader.adjustLatency("track1", 50);         // 50ms delay
+preloader.adjustLatencySamples("track1", 2400); // 2400 samples delay
+```
+
+## Visualizer
 
 ```typescript
 preloader.setVisualizerDataHandler((data) => {
-	console.log("Visualizer data:", data);
+	console.log("Band levels:", data);
 });
 
-// Set visualizer bands
 preloader.setVisualizerBands("", [
 	{ startFrequency: 20, endFrequency: 200 },
-	{ startFrequency: 201, endFrequency: 2000 },
+	{ startFrequency: 200, endFrequency: 2000 },
+	{ startFrequency: 2000, endFrequency: 20000 },
 ]);
-```
 
-### Global Controls
-
-```typescript
-// Set master volume
-preloader.setMasterVolume(0.9);
-
-// Apply low-pass filter
-preloader.setLowPassFilter(800, 1);
-```
-
-### Resource Management
-
-```typescript
-// Suspend and resume audio context
-await preloader.suspendContext();
-await preloader.resumeContext();
-
-// Release all resources
-preloader.releaseAllResources();
+preloader.setVisualizerBufferSize(256);  // 32~1024
 ```
 
 ## API Reference
 
-### Constructor
-
-```typescript
-new AudioPreloader(baseUrl: string, fileMap: FileMap, workerUrl: string, fetchOptions?: RequestInit, onWorkerMessage?: (type: string, payload: any) => void)
-```
-
 ### Methods
 
--   `loadAll(): Promise<void>` - Downloads all audio files.
--   `decodeAll(): Promise<void>` - Decodes all downloaded audio data.
--   `initAudioWorklet(moduleUrl: string): Promise<void>` - Initializes the AudioWorklet.
--   `playAudio(key: string, loop?: boolean, playbackRate?: number)` - Plays an audio track.
--   `stopAudio(key: string)` - Stops an audio track.
--   `adjustVolume(key: string, volume: number)` - Adjusts the volume of a track.
--   `adjustEQ(key: string, bandSettings: EQBand[])` - Applies EQ settings.
--   `adjustModulation(key: string, settings: ModulationSettings)` - Applies modulation effects.
--   `adjustEffects(key: string, settings: EffectsSettings)` - Applies audio effects.
--   `setVisualizerDataHandler(callback: (data: number[]) => void)` - Sets the visualizer data handler.
--   `setMasterVolume(volume: number)` - Sets the master volume.
--   `setLowPassFilter(cutoff: number, Q: number)` - Applies a low-pass filter.
--   `releaseAllResources()` - Releases all resources and closes the AudioContext.
+| Method | Description |
+|--------|-------------|
+| `loadAll()` | Download all audio files |
+| `decodeAll()` | Decode all downloaded audio |
+| `initAudioWorklet(url)` | Initialize AudioWorklet |
+| `playAudio(key, loop?, rate?)` | Play a track |
+| `stopAudio(key)` | Stop a track |
+| `clearAudio(key)` | Remove track from memory |
+| `adjustVolume(key, volume)` | Set track volume (0~1) |
+| `adjustEQ(key, bands)` | Apply EQ settings |
+| `adjustModulation(key, settings)` | Apply modulation |
+| `adjustEffects(key, settings)` | Apply delay/reverb/echo |
+| `adjustDrive(key, settings)` | Apply drive effects |
+| `adjustDynamics(key, settings)` | Apply compression |
+| `adjustLatency(key, ms)` | Set latency in ms |
+| `adjustLatencySamples(key, samples)` | Set latency in samples |
+| `adjustNormalize(key, flag)` | Enable/disable normalization |
+| `setMasterVolume(volume)` | Set master volume |
+| `setLowPassFilter(cutoff, Q)` | Apply low-pass filter |
+| `setVisualizerDataHandler(callback)` | Set visualizer callback |
+| `setVisualizerBands(key, bands)` | Configure visualizer bands |
+| `setVisualizerBufferSize(size)` | Set FFT buffer size |
+| `resumeContext()` | Resume AudioContext |
+| `suspendContext()` | Suspend AudioContext |
+| `releaseAllResources()` | Release all resources |
 
 ### Properties
 
--   `progress: number` - Returns the current loading progress.
--   `downloadedCount: number` - Number of downloaded files.
--   `downloadedTotal: number` - Total number of files to download.
--   `loaded: boolean` - Indicates if all files are loaded.
+| Property | Description |
+|----------|-------------|
+| `progress` | Loading progress (0~1) |
+| `downloadedCount` | Downloaded file count |
+| `downloadedTotal` | Total file count |
+| `loaded` | All files loaded |
 
 ## License
 
 MIT License
 
----
-
-For more details, refer to the source code and comments in `AudioPreloader.ts`.
